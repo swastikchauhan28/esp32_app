@@ -1,0 +1,7 @@
+# BLE connection test
+
+This sketch is for the pictured 30-pin ESP32 board using the **ESP32 Dev Module** target in Arduino IDE with the Espressif `esp32` core 3.3.13. It advertises the app's custom service and implements the LED, fan and state characteristics with **virtual RAM-only values**. It does not read a battery and does not use any GPIO. The Android app should show Battery level unavailable. The switches and slider only exercise BLE messages.
+
+Open `ble_connection_test.ino` in Arduino IDE, select **ESP32 Dev Module** and the board's USB port (shown as COM14 during setup), then click **Verify**. Upload only after you choose to replace the board's current firmware. This can overwrite a previous sketch; keep a copy if you need it. Open **Serial Monitor** at **115200 baud** and reset the ESP32 to see the random six-digit phone pairing code. On the phone, install the debug APK, turn on Bluetooth, grant Nearby devices permission, tap **Scan for ESP32**, select **ESP32-Control-Test**, and enter the code if Android asks. Controls should change the virtual state shown by the app and Serial Monitor; no physical output should change.
+
+If the device is not found, confirm the Serial Monitor says `Advertising ESP32-Control-Test` and scan again. If pairing fails after reinstalling firmware, remove the old Bluetooth bond on the phone and retry. The service UUID and data format are in `../../docs/BLE_PROTOCOL.md`. This test does not establish electrical, motor or battery safety for later hardware use.

@@ -1,0 +1,7 @@
+# GPIO2 onboard LED over BLE
+
+The owner observed a second onboard LED fade with the GPIO2 probe. This sketch controls only that GPIO2 LED. The red USB power LED stays on independently. Fan values are virtual RAM-only values and no battery value is reported.
+
+Open `ble_led_brightness.ino` in Arduino IDE with **ESP32 Dev Module** and the current USB COM port (COM14 during setup). Verify first. Uploading replaces the GPIO2 probe or previous BLE sketch. Open Serial Monitor at **115200 baud**, press **EN**, and note the random six-digit pairing code. The Bluetooth name is **ESP32-LED**. Install the latest Android APK, scan in the app, select **ESP32-LED**, and enter the code if prompted. The app should show an LED on/off switch and a 0–100% brightness slider. Move the slider and confirm the second LED changes brightness. The fan card is still a virtual BLE test; the battery card should show unavailable.
+
+If the slider moves the opposite way from visible brightness, `LED_ACTIVE_LOW` must be changed to `true` and the sketch recompiled/uploaded. Do not attach a bulb, fan or battery to GPIO2. The sketch does not provide a driver for external loads. If Android still shows old services after reflashing, forget the ESP32 Bluetooth bond on the phone, restart Bluetooth, then scan again. Phone connection, pairing, PWM direction and physical acceptance remain unverified until the owner tests them.
