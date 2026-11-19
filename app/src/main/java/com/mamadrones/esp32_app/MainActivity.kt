@@ -116,6 +116,7 @@ private fun ControlScreen(
     onFan: (Int) -> Unit,
 ) {
     val ready = state.connectedName != null && state.output != null
+    val benchFan = state.connectedName?.startsWith("ESP32-Bench-Fan") == true
     val output = state.output
     var speedDraft by remember { mutableFloatStateOf(0f) }
     var dragging by remember { mutableStateOf(false) }
@@ -193,7 +194,10 @@ private fun ControlScreen(
                     Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
                         Column(Modifier.weight(1f)) {
                             Text("Fan", style = MaterialTheme.typography.titleLarge)
-                            Text(if (ready) "${output!!.fanPercent}% speed" else if (state.connectedName != null) "Waiting for device state" else "Connect to control")
+                            Text(if (ready) {
+                                if (benchFan) "${output!!.fanPercent}% PWM command"
+                                else "${output!!.fanPercent}% speed"
+                            } else if (state.connectedName != null) "Waiting for device state" else "Connect to control")
                         }
                         Switch(
                             checked = (output?.fanPercent ?: 0) > 0,
@@ -201,7 +205,7 @@ private fun ControlScreen(
                             onCheckedChange = { on -> onFan(if (on) lastRunningSpeed else 0) },
                         )
                     }
-                    Text("Speed", style = MaterialTheme.typography.labelLarge)
+                    Text(if (benchFan) "PWM duty (bench test)" else "Speed", style = MaterialTheme.typography.labelLarge)
                     Slider(
                         value = speedDraft,
                         onValueChange = { speedDraft = it; dragging = true },
@@ -212,7 +216,8 @@ private fun ControlScreen(
                         valueRange = 0f..100f,
                         enabled = ready,
                     )
-                    Text("Move to 0% to turn the fan off.", style = MaterialTheme.typography.bodySmall)
+                    Text(if (benchFan) "0% turns the fan off. PWM duty is not measured airflow or RPM."
+                         else "Move to 0% to turn the fan off.", style = MaterialTheme.typography.bodySmall)
                 }
             }
 
@@ -220,7 +225,8 @@ private fun ControlScreen(
                 Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
                     Text("Battery", style = MaterialTheme.typography.titleLarge)
                     val battery = state.batteryPercent
-                    Text(if (battery == null) "Battery level unavailable" else "$battery% reported by ESP32")
+                    Text(if (battery == null) "Battery level unavailable" else if (benchFan) "$battery% estimated from battery voltage" else "$battery% reported by ESP32")
+                    if (benchFan) Text("Bench estimate only; not a low-battery safety warning.", style = MaterialTheme.typography.bodySmall)
                     if (battery != null) LinearProgressIndicator(
                         progress = { battery / 100f },
                         modifier = Modifier.fillMaxWidth(),

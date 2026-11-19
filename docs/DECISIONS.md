@@ -1,5 +1,15 @@
 # Decisions
 
+## 2026-11-19 — isolated fan and battery bench firmware (draft before implementation)
+
+Context: Owner reports GPIO25 drives an IRLZ44N switch for a two-wire 12 V test fan, VN/GPIO39 reads a 33 kΩ/10 kΩ divider from a 3S LiPo pack, and the fan should be off when the ESP32 has no gate drive. Existing app already sends BLE fan requests and reads Battery Level, while current firmware only stores virtual fan values. The earlier schematic is too small to verify the actual MOSFET wiring. This is a bench experiment, not wearable-mask firmware.
+
+Alternatives: Alter the owner-tested LED sketch; add an isolated sketch using on/off switching; or implement PWM immediately. Chosen: preserve the tested sketch, create an isolated bench sketch that maps 0 to off and any nonzero fan request to full on, starts GPIO25 low, and publishes an explicitly approximate 3S LiPo battery percentage using the existing BLE Battery Service. The app labels this device as on/off only and its percentage as an estimate. This avoids assuming the two-wire fan tolerates PWM. Model/version: unavailable to project records.
+
+Cost/risk: MOSFET terminal wiring and gate resistor remain unverified; do not flash or physically operate until checked. Voltage-based charge estimation varies with load and cannot drive breathing-safety decisions. The nominal 3S full voltage is 12.6 V even though the owner stated 12.1 V; confirm pack specifications. Revisit speed control after fan and gate circuit validation, and use a fuel gauge plus independent airflow/low-battery alarms for wearable use.
+
+2026-11-19 correction before verification: Owner explicitly requested variable speed and reported a 5 kHz PWM target. They also reported a 100 Ω pull-down from gate to source; this would draw about 33 mA from a 3.3 V GPIO when on. Infineon recommends a gate-to-source pull-down in the kΩ range, typically 10 kΩ. Choice revised to prepare 5 kHz PWM in the isolated sketch, while retaining a no-upload hardware gate until the pull-down and G/D/S wiring are corrected and confirmed. A two-wire fan's response and the IRLZ44N's heating at 3.3 V gate drive remain unverified.
+
 ## 2026-11-16 — BLE control protocol (draft before implementation)
 
 Context: The starter Android app has no device protocol. The owner chose Bluetooth Low Energy. ESP32 firmware, pin assignments, motor driver, battery chemistry and measurement circuit are not yet provided.

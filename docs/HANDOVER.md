@@ -1,5 +1,13 @@
 # Handover
 
+## 2026-11-19 — isolated bench fan PWM and battery estimate
+
+- Done: Owner specified GPIO25 to an IRLZ44N for a 12 V two-wire test fan, GPIO39/VN through a 33 kΩ/10 kΩ divider to a 3S LiPo pack, and 5 kHz PWM. Prepared a separate bench firmware sketch that starts fan output at zero, maps BLE fan requests to GPIO25 PWM duty, preserves GPIO2 LED control, and reports a voltage-derived Battery Level estimate. The Android app labels this bench device's command as PWM duty and battery percentage as estimated. Android `:app:testDebugUnitTest :app:lintDebug :app:assembleDebug` succeeded after these UI edits; no phone or hardware was exercised.
+- In progress: No code build remains. Fresh Arduino CLI compile for `esp32:esp32:esp32` core 3.3.13 succeeded (1,137,281 bytes program, 41,768 bytes global RAM). No upload or hardware operation has occurred.
+- Broken or risky: Owner reported a 100 Ω gate-to-source pull-down. At 3.3 V this would load GPIO25 by about 33 mA; Infineon recommends a kΩ-range value, typically 10 kΩ. Actual MOSFET G/D/S wiring and whether the 100 Ω is truly a pull-down rather than a series resistor need confirmation before upload. Two-wire fan response, MOSFET heating at 3.3 V, battery percentage accuracy, and battery pack full voltage are unverified. No airflow or low-battery safety monitor exists.
+- Next: Hardware team confirms/corrects the gate resistor and G/D/S wiring, measures that fan starts reliably over the intended command range, and validates battery voltage against a meter on the bench. Only then may the owner upload and test the isolated sketch. A fuel gauge and independent airflow/low-battery alarms are needed before wearable use.
+- Do not touch: Preserve the owner-tested LED firmware. Do not flash the new bench sketch or treat PWM duty/battery estimate as proven airflow or charge safety state.
+
 ## 2026-11-18 — owner BLE LED test
 
 - Done: Owner reported that the updated BLE LED firmware, Android app, connection and brightness control are all working on their phone and ESP32 board. This is a user-reported physical test; Codex did not observe device behavior independently. The upload log showed the firmware verified on COM14 and reset successfully.
